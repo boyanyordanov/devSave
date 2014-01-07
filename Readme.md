@@ -12,6 +12,16 @@ Also I will try to cover as much of the backend and frontend as possible with te
 
 In the meantime ( probably short ) this will be updated with links to other documents describing the process of creating the application.
 
+The vagrant setup is based on [Jeffrey Way's](https://github.com/JeffreyWay/Vagrant-Setup) with a few additions by myself.
+
+To get it up and running you need vagrant installed on your system and just run:
+
+``` vagrant up ```
+
+This will install all the necessary packages on a Ubuntu 12.04 box, setup mysql with **root/root** credentials, create a database for the project called **devsave** and run the database migrations and seeds. 
+
+*Note: I'll be using the root user, because this is a dev environment only.* 
+
 ## Contributions 
 
 I would like to keep this as an example of a simple application for anyone willing to check it out, so anything that can make it better is most welcome, and since I am learning as well it will be very helpfull to me as well. 
