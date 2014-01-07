@@ -16,4 +16,8 @@ class Bookmark extends Eloquent {
 		return $this->belongsToMany('Tag')->withTimestamps();
 	}
 
+	public function user () {
+		return $this->belongsTo('User');
+	}
+
 }

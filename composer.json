@@ -33,6 +33,7 @@
 	},
 	"minimum-stability": "dev",
 	"require-dev": {
-		"fzaninotto/faker": "dev-master"
+		"fzaninotto/faker": "dev-master",
+		"way/generators": "dev-master"
 	}
 }

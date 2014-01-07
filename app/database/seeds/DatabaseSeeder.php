@@ -9,9 +9,26 @@ class DatabaseSeeder extends Seeder {
 	 */
 	public function run()
 	{
+		// Allow the tables to be trucated even with foreign key constraings
+		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+		// Truncate the tables
+		DB::table('bookmarks')->truncate();
+		DB::table('folders')->truncate();
+		DB::table('tags')->truncate();
+		DB::table('users')->truncate();
+
 		Eloquent::unguard();
 
 		// $this->call('UserTableSeeder');
+		$this->call('UsersTableSeeder');
+		$this->call('FolderTableSeeder');
+		$this->call('TagsTableSeeder');
+		$this->call('BookmarksTableSeeder');
+
+		// Enable the constraints again
+		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+	
 	}
 
 }

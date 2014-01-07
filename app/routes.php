@@ -11,7 +11,30 @@
 |
 */
 
-Route::get('/', function()
-{
-  return 'Hello world';
+Route::get('/{userId}', function($userId) {
+  $user = \User::find($userId);
+
+  $folders = [];
+
+  foreach ($user->folders as $folder) {
+    $folders[] = [
+      'name' => $folder->name,
+      'slug' => $folder->slug,
+      'bookmarks' => array_pluck($folder->bookmarks->toArray(), 'url')
+    ];
+  }
+
+  $bookmarks = [];
+  foreach ($user->bookmarks as $bookmark) {
+    $bookmarks [] = [
+      'title' => $bookmark->title,
+      'url'   => $bookmark->url,
+      'tags'  => implode(array_pluck($bookmark->tags->toArray(), 'name'), ', ')
+    ];
+  }
+  return Response::make([
+    'user' => $user->email,
+    'folders' => $folders,
+    'bookmarks' => $bookmarks
+  ]);
 });
