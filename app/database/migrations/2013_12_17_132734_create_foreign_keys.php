@@ -11,7 +11,9 @@ class CreateForeignKeys extends Migration {
 			$table->engine = 'InnoDB';
 
 			$table->foreign('folder_id')->references('id')->on('folders');
+			$table->foreign('user_id')->references('id')->on('users');
 		});
+
 		Schema::table('folders', function(Blueprint $table) {
 			$table->engine = 'InnoDB';
 
@@ -19,6 +21,7 @@ class CreateForeignKeys extends Migration {
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
+
 		Schema::table('tags', function(Blueprint $table) {
 			$table->engine = 'InnoDB';
 
@@ -26,6 +29,7 @@ class CreateForeignKeys extends Migration {
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
+
 		Schema::table('bookmark_tag', function(Blueprint $table) {
 			$table->engine = 'InnoDB';
 
@@ -33,6 +37,7 @@ class CreateForeignKeys extends Migration {
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
+
 		Schema::table('bookmark_tag', function(Blueprint $table) {
 			$table->engine = 'InnoDB';
 
