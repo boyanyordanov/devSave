@@ -12,7 +12,8 @@ class DatabaseSeeder extends Seeder {
 		// Allow the tables to be trucated even with foreign key constraings
 		if (Config::get('database.default') == 'mysql') {
 			DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-		}
+			$this->call('TestingSeederTableSeeder');
+	}
 
 		// Truncate the tables
 		DB::table('bookmarks')->truncate();

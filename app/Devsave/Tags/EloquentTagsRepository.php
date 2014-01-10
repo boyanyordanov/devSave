@@ -81,4 +81,9 @@ class EloquentTagsRepository implements TagsInterface {
     
     return $slug;
   }
+
+  public function getBookmarks ($userId, $slug) {
+    return $this->tag->where('user_id', $userId)->where('slug', $slug)->first()->bookmarks->toArray();
+  }
+
 }

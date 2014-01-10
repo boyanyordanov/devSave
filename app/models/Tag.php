@@ -15,5 +15,4 @@ class Tag extends Eloquent {
 	public function bookmarks() {
 		return $this->belongsToMany('Bookmark')->withTimestamps();
 	}
-
 }

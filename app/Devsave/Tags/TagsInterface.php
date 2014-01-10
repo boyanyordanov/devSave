@@ -15,4 +15,7 @@ interface TagsInterface {
   public function update ($tagData);
 
   public function delete ($id);
+
+  public function getBookmarks ($userId, $slug);
+
 }
