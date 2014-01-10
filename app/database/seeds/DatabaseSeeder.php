@@ -10,7 +10,9 @@ class DatabaseSeeder extends Seeder {
 	public function run()
 	{
 		// Allow the tables to be trucated even with foreign key constraings
-		DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+		if (Config::get('database.default') == 'mysql') {
+			DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+		}
 
 		// Truncate the tables
 		DB::table('bookmarks')->truncate();
@@ -27,8 +29,9 @@ class DatabaseSeeder extends Seeder {
 		$this->call('BookmarksTableSeeder');
 
 		// Enable the constraints again
-		DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-	
+		if (Config::get('database.default') == 'mysql') {
+			DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+		}
 	}
 
 }

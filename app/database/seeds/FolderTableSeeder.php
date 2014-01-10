@@ -5,18 +5,24 @@ class FolderTableSeeder extends Seeder {
 	public function run() {
     $faker = \Faker\Factory::create();
 
+    // Arrach the folder to a random
+    if (Config::get('database.default') == 'mysql') {
+      $user = \User::orderBy(DB::raw('RAND()'))->first();
+    } else if (Config::get('database.default') == 'sqlite') {
+      $user = \User::orderBy(DB::raw('RANDOM()'))->first();
+    }
+    
     for ($i=0; $i < 10; $i++) { 
       $name = $faker->words(rand(1, 3));
 
       $name = implode($name, ' ');
 
       $folder = \Folder::create([
-        'name' => ucfirst($name),
-        'slug' => \Str::slug($name)
+        'name'    => ucfirst($name),
+        'slug'    => \Str::slug($name),
+        'user_id' => $user->id
       ]);
 
-      // Arrach the folder to a random
-      \User::orderBy(DB::raw('RAND()'))->first()->folders()->save($folder);
     }
   }
 }

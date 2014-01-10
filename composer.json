@@ -14,7 +14,11 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
-		]
+		],
+
+		"psr-0": {
+			"Devsave": "app"
+		}
 	},
 	"scripts": {
 		"post-install-cmd": [
@@ -34,6 +38,8 @@
 	"minimum-stability": "dev",
 	"require-dev": {
 		"fzaninotto/faker": "dev-master",
-		"way/generators": "dev-master"
+		"way/generators": "dev-master",
+		"phpunit/phpunit": "dev-master",
+		"mockery/mockery": "dev-master"
 	}
 }

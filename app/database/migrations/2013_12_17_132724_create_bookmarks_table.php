@@ -13,7 +13,7 @@ class CreateBookmarksTable extends Migration {
 			$table->string('url');
 			$table->string('title', 255)->nullable();
 			$table->string('notes', 500)->nullable();
-			$table->integer('folder_id')->unsigned();
+			$table->integer('folder_id')->unsigned()->nullable();
 			$table->integer('user_id')->unsigned();
 		});
 	}

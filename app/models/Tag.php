@@ -6,6 +6,8 @@ class Tag extends Eloquent {
 	public $timestamps = true;
 	protected $softDelete = false;
 
+  protected $fillable = ['name', 'slug', 'user_id'];
+
 	public function user() {
 		return $this->belongsTo('User');
 	}
