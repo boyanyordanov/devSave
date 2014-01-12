@@ -11,6 +11,10 @@ interface FoldersInterface {
   public function findByName ($userId, $name);
 
   public function addBookmark ($userId, $folderSlug, $bookmarkId);
+
+  public function getBookmarks ($userId, $folderSlug);
+
+  public function getTotalBookmarks ($userId, $folderSlug);
   
   public function create ($folderData);
 

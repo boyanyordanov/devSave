@@ -18,4 +18,5 @@ interface TagsInterface {
 
   public function getBookmarks ($userId, $slug);
 
+  public function getTotalBookmarks ($userId, $slug);
 }

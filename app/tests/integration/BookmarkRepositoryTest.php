@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * TODO: add eager loading to all queries
+ */
 class BookmarkRepositoryTest extends TestCase {
 
   protected $bookmarkRepo;
@@ -180,6 +183,7 @@ class BookmarkRepositoryTest extends TestCase {
     $updatedBookmark = $this->bookmarkRepo->update($bookmarkData);
 
     $this->assertEquals(1, $updatedBookmark['id']);
+    $this->assertEquals($bookmarkData['url'], $updatedBookmark['url']);
   }
 
 
@@ -195,40 +199,29 @@ class BookmarkRepositoryTest extends TestCase {
 
     $updatedBookmark = $this->bookmarkRepo->update($bookmarkData);
   }
-
-  /**
-   * @expectedException Devsave\Exceptions\UserNotFoundException
-   */
-  public function test_updating_bookmark_without_user () {
-    $bookmarkData = [
-      'id'    => 1,
-      'url'   => 'http://test-site.dev',
-      'title' => 'Test site',
-      'notes' => 'Notes for the test site'
-    ];
-
-    $updatedBookmark = $this->bookmarkRepo->update($bookmarkData);
-  }
-
-  /**
-   * @expectedException Devsave\Exceptions\UserNotFoundException
-   */
-  public function test_updating_bookmark_with_wrong_user () {
-    $bookmarkData = [
-      'id'      => 1,
-      'url'     => 'http://test-site.dev',
-      'title'   => 'Test site',
-      'notes'   => 'Notes for the test site',
-      'user_id' => 100
-    ];
-
-    $updatedBookmark = $this->bookmarkRepo->update($bookmarkData);
-  }
   
   public function test_deleting_bookmark () {
     $this->bookmarkRepo->delete(1);
 
     $this->assertEquals(8, Bookmark::count());
     $this->assertNull(Bookmark::find(1));
+  }
+
+  public function test_get_total_bookmarks_for_user () {
+    $count = $this->bookmarkRepo->getTotal(1);
+
+    $this->assertEquals(9, $count);
+  }
+
+  public function test_get_total_bookmarks_for_folder () {
+    $count = $this->bookmarkRepo->getTotalForFolder(1, 'first-folder');
+
+    $this->assertEquals(3, $count);
+  }
+
+  public function test_get_total_bookmarks_for_tag () {
+    $count = $this->bookmarkRepo->getTotalForTag(1, 'first-tag');
+
+    $this->assertEquals(6, $count);
   }
 }

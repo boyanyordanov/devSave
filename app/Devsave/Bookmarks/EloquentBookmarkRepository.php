@@ -28,11 +28,13 @@ class EloquentBookmarkRepository implements BookmarkInterface {
   }
 
   public function findByUser ($userId) {
+    $this->checkUser($userId);
+
     return $this->bookmark->where('user_id', $userId)->get()->toArray();
   }
 
   public function findById ($id) {
-    $bookmark = $this->bookmark->find($id);
+    $bookmark = $this->bookmark->with('tags', 'folder')->find($id);
 
     if (!$bookmark) {
       throw new BookmarkNotFoundException;
@@ -42,28 +44,38 @@ class EloquentBookmarkRepository implements BookmarkInterface {
   }
 
   public function findByTag ($userId, $tagSlug) {
+    $this->checkUser($userId);
+
     return $this->tag->getBookmarks($userId, $tagSlug);
   }
 
   public function findByFolder ($userId, $folderSlug) {
-   $folder = $this->folder->findBySlug($userId, $folderSlug);
+   $this->checkUser($userId);
 
-   return $this->bookmark->where('folder_id', $folder['id'])->get()->toArray();
+   return $this->folder->getBookmarks($userId, $folderSlug);
   }
 
   public function create ($bookmarkData) {
     if (!array_key_exists('user_id',$bookmarkData)) {
       throw new UserNotFoundException('User id not provided');
-    } else if (!$this->user->find($bookmarkData['user_id'])) {
-      throw new UserNotFoundException;
+    } else {
+      $this->checkUser($bookmarkData['user_id']);
     }
 
-    $bookmark = $this->bookmark->create([
+    $data = [
       'url' => $bookmarkData['url'],
-      'title' => $bookmarkData['title'],
-      'notes' => $bookmarkData['notes'],
       'user_id' => $bookmarkData['user_id']
-    ]);
+    ];
+
+    if (array_key_exists('title', $bookmarkData)) {
+      $data['title'] = $bookmarkData['title'];
+    }
+
+    if (array_key_exists('notes', $bookmarkData)) {
+      $data['notes'] = $bookmarkData['notes'];
+    }
+
+    $bookmark = $this->bookmark->create($data);
 
     if (array_key_exists('folder_id', $bookmarkData)) {
       $bookmark->folder()->associate($bookmarkData['folder_id']);
@@ -81,24 +93,27 @@ class EloquentBookmarkRepository implements BookmarkInterface {
       throw new BookmarkNotFoundException;
     }
 
-    if (!array_key_exists('user_id',$bookmarkData)) {
-      throw new UserNotFoundException('User id not provided');
-    } else if (!$this->user->find($bookmarkData['user_id'])) {
-      throw new UserNotFoundException;
-    }
-
     $bookmark = $this->bookmark->find($bookmarkData['id']);
 
     if (!$bookmark) {
       throw new BookmarkNotFoundException;
     }
 
-    $bookmark->update([
-      'url' => $bookmarkData['url'],
-      'title' => $bookmarkData['title'],
-      'notes' => $bookmarkData['notes'],
-      'user_id' => $bookmarkData['user_id']
-    ]);
+    $data = [];
+
+    if (array_key_exists('url', $bookmarkData)) {
+      $data['url'] = $bookmarkData['url'];
+    }
+
+    if (array_key_exists('title', $bookmarkData)) {
+      $data['title'] = $bookmarkData['title'];
+    }
+
+    if (array_key_exists('notes', $bookmarkData)) {
+      $data['notes'] = $bookmarkData['notes'];
+    }
+
+    $bookmark->update($data);
 
     if (array_key_exists('folder_id', $bookmarkData)) {
       $bookmark->folder()->associate($bookmarkData['folder_id']);
@@ -111,6 +126,12 @@ class EloquentBookmarkRepository implements BookmarkInterface {
     return $bookmark->toArray();
   }
 
+  /**
+   * Syncs the tags for a user with provided array of tag slugs.
+   *   
+   * @param  Bookmark model/array $bookmark
+   * @param  Array $tagSlugs
+   */
   protected function updateTags ($bookmark, $tagSlugs) {
     $tagIds = [];
 
@@ -126,6 +147,37 @@ class EloquentBookmarkRepository implements BookmarkInterface {
   public function delete ($id) {
     $bookmark = $this->bookmark->find($id);
 
-    $bookmark->delete();
+    if ($bookmark) {
+      $bookmark->delete();
+    }
   }
+
+  /**
+   * Checks if a user exists
+   * @param  Integer $id
+   * @throws Devsave\Exceptions\UserNotFoundException if a user with the provided id does not exists.
+   */
+  protected function checkUser ($id) {
+    if (!$this->user->find($id)) {
+      throw new UserNotFoundException;
+    }
+  }
+
+  public function getTotal ($userId) {
+    $this->checkUser($userId);
+
+    return $this->user->find($userId)->bookmarks->count();
+  }
+
+  public function getTotalForFolder ($userId, $folderSlug) {
+    $this->checkUser($userId);
+
+    return $this->folder->getTotalBookmarks($userId, $folderSlug);
+  }
+
+  public function getTotalForTag ($userId, $tagSlug) {
+    $this->checkUser($userId);
+
+    return $this->tag->getTotalBookmarks($userId, $tagSlug);
+  } 
 }
