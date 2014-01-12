@@ -3,7 +3,7 @@
 /**
  * TODO: add eager loading to all queries
  */
-class TagsRepositoryInterfaceTest extends TestCase {
+class TagsRepositoryTest extends TestCase {
 
   protected $tagsRepo;
 
@@ -131,5 +131,79 @@ class TagsRepositoryInterfaceTest extends TestCase {
     $count = $this->tagsRepo->getTotalBookmarks(1, 'first-tag');
     
     $this->assertEquals(6, $count);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_querying_for_non_existent_user () {
+    $this->tagsRepo->findByUser(100);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_querying_for_non_existent_tag () {
+    $this->tagsRepo->findById(100);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_querying_with_slug_for_non_existent_tag () {
+    $this->tagsRepo->findBySlug(1, 'some-slug');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_querying_with_slug_for_non_existent_user () {
+    $this->tagsRepo->findBySlug(100, 'first-tag');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_querying_with_name_for_non_existent_tag () {
+    $this->tagsRepo->findByName(1, 'Some tag');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_querying_with_name_for_non_existent_user () {
+    $this->tagsRepo->findByName(100, 'First tag');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_creating_tag_with_non_existent_user () {
+    $newTag = $this->tagsRepo->create([
+      'user_id' => 100,
+      'name'    => 'New tag'
+    ]);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_updating_tag_with_non_existent_user () {
+    $newTag = $this->tagsRepo->update([
+      'id'      => 1,
+      'user_id' => 100,
+      'name'    => 'New tag'
+    ]);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_updating_non_existend_tag () {
+    $newTag = $this->tagsRepo->update([
+      'id'      => 100,
+      'user_id' => 1,
+      'name'    => 'New tag'
+    ]);
   }
 }
