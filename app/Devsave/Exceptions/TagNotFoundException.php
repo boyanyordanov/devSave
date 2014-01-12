@@ -1,4 +1,4 @@
-<?php namespace Devsave\Tags;
+<?php namespace Devsave\Exceptions;
 
 use Exception;
 

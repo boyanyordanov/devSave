@@ -2,6 +2,8 @@
 
 use Tag, Str;
 
+use Devsave\Exceptions\TagNotFoundException;
+
 class EloquentTagsRepository implements TagsInterface {
   protected $tag;
 
@@ -40,7 +42,7 @@ class EloquentTagsRepository implements TagsInterface {
       'user_id' => $tagData['user_id']
     ]);
 
-    return $tag->id;
+    return $tag->toArray();
   }
 
   public function update ($tagData) {
@@ -56,6 +58,8 @@ class EloquentTagsRepository implements TagsInterface {
     $tag->slug = $slug;
 
     $tag->save();
+
+    return $tag->toArray();
   }
 
   public function delete ($id) {
