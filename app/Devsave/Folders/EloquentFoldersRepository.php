@@ -1,19 +1,35 @@
 <?php namespace Devsave\Folders;
 
-use Folder, Str;
+use Folder, User, Bookmark, Str;
 
 use Devsave\Exceptions\FolderNotFoundException;
+use Devsave\Exceptions\UserNotFoundException;
+use Devsave\Exceptions\BookmarkNotFoundException;
 
 class EloquentFoldersRepository implements FoldersInterface {
     
   protected $folder;
 
-  public function __construct (Folder $folder) {
+  protected $user;
+
+  protected $bookmark;
+
+  public function __construct (Folder $folder, User $user, Bookmark $bookmark) {
     $this->folder = $folder;
+
+    $this->user = $user;
+
+    $this->bookmark = $bookmark;
   }
 
   public function findByUser ($userId) {
-    return $this->folder->where('user_id', $userId)->get()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    return $user->folders->toArray();
   }
   
   public function findById ($id) {
@@ -27,20 +43,62 @@ class EloquentFoldersRepository implements FoldersInterface {
   }
 
   public function findBySlug ($userId, $slug) {
-    return $this->folder->where('user_id', $userId)->where('slug', $slug)->first()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    $folder = $user->folders()->where('slug', $slug)->first();
+
+    if (!$folder) {
+      throw new FolderNotFoundException;
+    }
+
+    return $folder->toArray();
   }
 
   public function findByName ($userId, $name) {
-    return $this->folder->where('user_id', $userId)->where('name', $name)->first()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    $folder = $user->folders()->where('name', $name)->first();
+
+    if (!$folder) {
+      throw new FolderNotFoundException;
+    }
+
+    return $folder->toArray();
   }
 
   public function addBookmark ($userId, $folderSlug, $bookmarkId) {
+    if (!$this->user->find($userId)) {
+      throw new UserNotFoundException;
+    }
+
     $folder = $this->folder->where('user_id', $userId)->where('slug', $folderSlug)->first();
 
-    $folder->save($bookmarkId);
+    if (!$folder) {
+      throw new FolderNotFoundException;
+    }
+
+    $bookmark = $this->bookmark->find($bookmarkId);
+
+    if (!$bookmark) {
+      throw new BookmarkNotFoundException;
+    }
+
+    $folder->bookmarks()->save($bookmark);
   }
   
   public function create ($folderData) {
+    if (!$this->user->find($folderData['user_id'])) {
+      throw new UserNotFoundException;
+    }
+
     $slug = $this->makeSlug($folderData['name'], $folderData['user_id']);
 
     $folder = $this->folder->create([
@@ -49,10 +107,14 @@ class EloquentFoldersRepository implements FoldersInterface {
       'user_id' => $folderData['user_id']
     ]);
 
-    return $folder->id;
+    return $folder->toArray();
   }
 
   public function update ($folderData) {
+    if (!$this->user->find($folderData['user_id'])) {
+      throw new UserNotFoundException;
+    }
+
     $folder = $this->folder->find($folderData['id']);
 
     if (!$folder) {
@@ -65,6 +127,8 @@ class EloquentFoldersRepository implements FoldersInterface {
     $folder->slug = $slug;
 
     $folder->save();
+
+    return $folder->toArray();
   }
 
   public function delete ($id) {
@@ -91,10 +155,30 @@ class EloquentFoldersRepository implements FoldersInterface {
   }
 
   public function getBookmarks($userId, $folderSlug) {
-    return $this->folder->where('user_id', $userId)->where('slug', $folderSlug)->first()->bookmarks->toArray();
+    if (!$this->user->find($userId)) {
+      throw new UserNotFoundException;
+    }
+
+    $folder = $this->folder->where('user_id', $userId)->where('slug', $folderSlug)->first();
+
+    if (!$folder) {
+      throw new FolderNotFoundException;
+    }
+
+    return $folder->bookmarks->toArray();
   }
 
   public function getTotalBookmarks($userId, $folderSlug) {
-    return $this->folder->where('user_id', $userId)->where('slug', $folderSlug)->first()->bookmarks->count();
+    if (!$this->user->find($userId)) {
+      throw new UserNotFoundException;
+    }
+
+    $folder = $this->folder->where('user_id', $userId)->where('slug', $folderSlug)->first();
+
+    if (!$folder) {
+      throw new FolderNotFoundException;
+    }
+
+    return $folder->bookmarks->count();
   }
 }

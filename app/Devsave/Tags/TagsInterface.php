@@ -14,7 +14,7 @@ interface TagsInterface {
    * Get a tag by its id  
    * @param  Integer $id
    * @return Array     
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function findById ($id);
 
@@ -24,7 +24,7 @@ interface TagsInterface {
    * @param  String $slug   
    * @return Array
    * @throws Devsave\Exceptions\UserNotFoundException
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function findBySlug ($userId, $slug);
 
@@ -34,7 +34,7 @@ interface TagsInterface {
    * @param  String $name
    * @return Array
    * @throws Devsave\Exceptions\UserNotFoundException
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function findByName ($userId, $name);
 
@@ -56,7 +56,7 @@ interface TagsInterface {
    * @param  Array $tagData
    * @return Array
    * @throws Devsave\Exceptions\UserNotFoundException
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    * 
    */
   public function update ($tagData);
@@ -64,7 +64,7 @@ interface TagsInterface {
   /**
    * Deletes a tag with provided id
    * @param  Integer $id
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function delete ($id);
 
@@ -74,7 +74,7 @@ interface TagsInterface {
    * @param  String $slug   
    * @return Array         
    * @throws Devsave\Exceptions\UserNotFoundException
-   * @throws Devsave\Exceptions\FolderNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function getBookmarks ($userId, $slug);
 
@@ -83,6 +83,8 @@ interface TagsInterface {
    * @param  Integer $userId
    * @param  String $slug   
    * @return Integer
+   * @throws Devsave\Exceptions\UserNotFoundException
+   * @throws Devsave\Exceptions\TagNotFoundException
    */
   public function getTotalBookmarks ($userId, $slug);
 }

@@ -1,4 +1,4 @@
-<?php namespace Devsave\Folders;
+<?php namespace Devsave\Exceptions;
 
 use Exception;
 
