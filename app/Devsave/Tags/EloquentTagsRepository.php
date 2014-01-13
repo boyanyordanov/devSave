@@ -1,18 +1,29 @@
 <?php namespace Devsave\Tags;
 
-use Tag, Str;
+use Tag, User, Str;
 
 use Devsave\Exceptions\TagNotFoundException;
+use Devsave\Exceptions\UserNotFoundException;
 
 class EloquentTagsRepository implements TagsInterface {
   protected $tag;
 
-  public function __construct (Tag $tag) {
+  protected $user;
+
+  public function __construct (Tag $tag, User $user) {
     $this->tag = $tag;
+
+    $this->user = $user;
   }
 
   public function findByUser ($userId) {
-    return $this->tag->where('user_id', $userId)->get()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    return $user->tags->toArray();
   }
   
   public function findById ($id) {
@@ -26,14 +37,42 @@ class EloquentTagsRepository implements TagsInterface {
   }
 
   public function findBySlug ($userId, $slug) {
-    return $this->tag->where('user_id', $userId)->where('slug', $slug)->first()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    $tag = $user->tags()->where('slug', $slug)->first();
+
+    if (!$tag) {
+      throw new TagNotFoundException;
+    }
+    
+    return $tag->toArray();
   }
 
   public function findByName ($userId, $name) {
-    return $this->tag->where('user_id', $userId)->where('name', $name)->first()->toArray();
+    $user = $this->user->find($userId);
+
+    if (!$user) {
+      throw new UserNotFoundException;
+    }
+
+    $tag = $user->tags()->where('name', $name)->first();
+
+    if (!$tag) {
+      throw new TagNotFoundException;
+    }
+    
+    return $tag->toArray();
   }
   
   public function create ($tagData) {
+    if (!$this->user->find($tagData['user_id'])) {
+      throw new UserNotFoundException;
+    }
+
     $slug = $this->makeSlug($tagData['name'], $tagData['user_id']);
 
     $tag = $this->tag->create([
@@ -46,6 +85,10 @@ class EloquentTagsRepository implements TagsInterface {
   }
 
   public function update ($tagData) {
+    if (!$this->user->find($tagData['user_id'])) {
+      throw new UserNotFoundException;
+    }
+
     $tag = $this->tag->find($tagData['id']);
 
     if (!$tag) {
@@ -87,10 +130,30 @@ class EloquentTagsRepository implements TagsInterface {
   }
 
   public function getBookmarks ($userId, $slug) {
-    return $this->tag->where('user_id', $userId)->where('slug', $slug)->first()->bookmarks->toArray();
+    if (!$this->user->find($userId)) {
+      throw new UserNotFoundException;
+    }
+
+    $tag = $this->tag->where('user_id', $userId)->where('slug', $slug)->first();
+
+    if (!$tag) {
+      throw new TagNotFoundException;
+    }
+
+    return $tag->bookmarks->toArray();
   }
 
   public function getTotalBookmarks ($userId, $slug) {
-    return $this->tag->where('user_id', $userId)->where('slug', $slug)->first()->bookmarks->count();
+    if (!$this->user->find($userId)) {
+      throw new UserNotFoundException;
+    }
+
+    $tag = $this->tag->where('user_id', $userId)->where('slug', $slug)->first();
+
+    if (!$tag) {
+      throw new TagNotFoundException;
+    }
+
+    return $tag->bookmarks->count();
   }
 }

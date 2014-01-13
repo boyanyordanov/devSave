@@ -19,7 +19,7 @@ class TestingSeeder extends Seeder {
     Tag::create(['name' => 'First tag', 'slug' => 'first-tag', 'user_id' => $user->id]);
     Tag::create(['name' => 'Second tag', 'slug' => 'second-tag', 'user_id' => $user->id]);
     Tag::create(['name' => 'Third tag', 'slug' => 'third-tag', 'user_id' => $user->id]);
-    Tag::create(['name' => 'Fourth tag', 'slug' => 'fourh-tag', 'user_id' => $user->id]);
+    Tag::create(['name' => 'Fourh tag', 'slug' => 'fourh-tag', 'user_id' => $user->id]);
 
     $bookmarksData = [
       ['title' => 'DevSave',    'user_id' => 1, 'url' => 'http://devsave.dev',                'notes' => 'Notes on the bookmark'],

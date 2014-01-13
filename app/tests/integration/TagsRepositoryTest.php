@@ -1,8 +1,5 @@
 <?php
 
-/**
- * TODO: add eager loading to all queries
- */
 class TagsRepositoryTest extends TestCase {
 
   protected $tagsRepo;
@@ -25,6 +22,7 @@ class TagsRepositoryTest extends TestCase {
     $results = $this->tagsRepo->findByUser(1);
 
     $this->assertCount(4, $results);
+    
 
     foreach ($results as $tag) {
       $this->assertArrayHasKey('id', $tag);
@@ -205,5 +203,40 @@ class TagsRepositoryTest extends TestCase {
       'user_id' => 1,
       'name'    => 'New tag'
     ]);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_deleting_non_existend_tag () {
+    $this->tagsRepo->delete(100);
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_bookmark_retrieval_for_non_existing_user () {
+    $this->tagsRepo->getBookmarks(100, 'first-tag');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_bookmark_retrieval_for_non_existing_tag () {
+    $this->tagsRepo->getBookmarks(1, 'Foo');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\UserNotFoundException
+   */
+  public function test_getting_total_for_non_existing_user () {
+    $this->tagsRepo->getTotalBookmarks(100, 'first-tag');
+  }
+
+  /**
+   * @expectedException Devsave\Exceptions\TagNotFoundException
+   */
+  public function test_getting_total_for_non_existing_tag () {
+    $this->tagsRepo->getTotalBookmarks(1, 'Foo');
   }
 }
