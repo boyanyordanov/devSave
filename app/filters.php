@@ -44,6 +44,21 @@ Route::filter('auth.basic', function()
 	return Auth::basic();
 });
 
+Route::filter('auth.api', function () {
+  $currentToken = Session::get('api.token');
+    
+  $sentToken = Request::header('DEVSAVE-AUTH');
+
+  if (!Auth::check() || $currentToken != $sentToken) {
+    return Response::make([
+      'code' => 401,
+      'data' => [
+        'message' => 'You are unauthorized!'
+      ]
+    ], 401);
+  }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Guest Filter

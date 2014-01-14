@@ -14,7 +14,22 @@
 Route::get('/', ['as' => 'home', 'uses' => 'HomeController@getIndex']);
 Route::get('{any?}', 'HomeController@getIndex');
 
-Route::group(['prefix' => 'api/v1'], function () {
+/*
+|--------------------------------------------------------------------------
+| Session Resource
+|--------------------------------------------------------------------------
+| 
+| Responsible for loggin a user in and out and retrieving information about
+| the session.
+|
+| session - GET     - Returns whether the user is loggin in and information 
+|                     about it
+| session - POST    - Loggs a user in
+| session - DELETE  - Loggs a user out
+|
+*/
+
+Route::group(['prefix' => 'api/v1', 'before' => 'auth.api'], function () {
 
   /*
   |--------------------------------------------------------------------------
@@ -30,21 +45,7 @@ Route::group(['prefix' => 'api/v1'], function () {
 
   Route::resource('users', 'Devsave\Api\UsersController');
 
-  /*
-  |--------------------------------------------------------------------------
-  | Session Resource
-  |--------------------------------------------------------------------------
-  | 
-  | Responsible for loggin a user in and out and retrieving information about
-  | the session.
-  |
-  | session - GET     - Returns whether the user is loggin in and information 
-  |                     about it
-  | session - POST    - Loggs a user in
-  | session - DELETE  - Loggs a user out
-  |
-  */
-
+ 
   /*
   |--------------------------------------------------------------------------
   | Bookmarks Resource
