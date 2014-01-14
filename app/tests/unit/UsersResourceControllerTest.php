@@ -5,15 +5,25 @@ use Mockery as m;
 class UsersResourceControllerTest extends TestCase {
 
   protected $apiPrefix = '/api/v1';
-	
+	 
+  protected $usersRepoMock;
+
   public function tearDown () {
     m::close();
   }
 
-  public function test_getting_all_users () {
-    $mock = $this->setupMock();
+  public function setUp () {
+    parent::setUp();
 
-    $mock->shouldReceive('findAll')->once()->andReturn([
+    Auth::shouldReceive('guest')->andReturn(false);
+
+    $this->usersRepoMock = m::mock('Devsave\Users\EloquentUsersRepository');
+
+    App::instance('Devsave\Users\UsersInterface', $this->usersRepoMock);
+  }
+
+  public function test_getting_all_users () {
+    $this->usersRepoMock->shouldReceive('findAll')->once()->andReturn([
       ['id' => 1, 'email' => 'user@example.com'],
       ['id' => 2, 'email' => 'user2@example.com']
     ]);
@@ -23,15 +33,25 @@ class UsersResourceControllerTest extends TestCase {
     $this->assertResponseOk();
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 200, "data": [{"id":1, "email": "user@example.com"}, {"id":2, "email": "user2@example.com"}]}',
+      '{
+        "code": 200, 
+        "data": [
+          {
+            "id":1, 
+            "email": "user@example.com"
+          }, 
+          {
+            "id":2, 
+            "email": "user2@example.com"
+          }
+        ]
+      }',
       $response->getContent()
     );
   }
 
   public function test_getting_single_user () {
-    $mock = $this->setupMock();
-    
-    $mock->shouldReceive('findById')->once()->with(1)->andReturn([
+    $this->usersRepoMock->shouldReceive('findById')->once()->with(1)->andReturn([
       'id'    => 1,
       'email' => 'user@example.com'
     ]);
@@ -41,15 +61,19 @@ class UsersResourceControllerTest extends TestCase {
     $this->assertResponseOk();
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 200, "data": {"id":1, "email": "user@example.com"}}',
+      '{
+        "code": 200, 
+        "data": {
+          "id":1, 
+          "email": "user@example.com"
+        }
+      }',
       $response->getContent()
     );
   }
 
   public function test_saving_user () {
-    $mock = $this->setupMock();
-    
-    $mock->shouldReceive('create')->once()->with(['email' => 'newUser@example.com', 'password' => '1234'])->andReturn([
+    $this->usersRepoMock->shouldReceive('create')->once()->with(['email' => 'newUser@example.com', 'password' => '1234'])->andReturn([
       'id' => 1,
       'email' => 'user@example.com'
     ]);
@@ -59,15 +83,19 @@ class UsersResourceControllerTest extends TestCase {
     $this->assertResponseOk();
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 200, "data": {"id":1, "email": "user@example.com"}}',
+      '{
+        "code": 200, 
+        "data": {
+          "id":1, 
+          "email": "user@example.com"
+        }
+      }',
       $response->getContent()
     );
   }
 
-  public function test_updating_user () {
-    $mock = $this->setupMock();
-    
-    $mock->shouldReceive('update')->once()->with([
+  public function test_updating_user () {    
+    $this->usersRepoMock->shouldReceive('update')->once()->with([
       'id'       => 1,
       'email'    => 'updatedUser@example.com',
       'password' => '12345'
@@ -81,57 +109,75 @@ class UsersResourceControllerTest extends TestCase {
     $this->assertResponseOk();
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 200, "data": {"id":1, "email": "updatedUser@example.com"}}',
+      '{
+        "code": 200, 
+        "data": {
+          "id":1, 
+          "email": "updatedUser@example.com"
+        }
+      }',
       $response->getContent()
     );
   }
 
   public function test_deleting_user () {
-    $mock = $this->setupMock();
-
-    $mock->shouldReceive('delete')->once()->with(1);
+    $this->usersRepoMock->shouldReceive('delete')->once()->with(1);
 
     $response = $this->call('DELETE', $this->apiPrefix . '/users/1');
 
     $this->assertResponseOk();
+
+    $this->assertJsonStringEqualsJsonString(
+      '{
+        "code": 200,
+        "data": {
+          "message": "User deleted successfully."
+        }
+      }',
+      $response->getContent()
+    );
   }
 
   // Tests for wrong data
 
   public function test_getting_single_user_with_wrong_id () {
-    $mock = $this->setupMock();
-    
-    $mock->shouldReceive('findById')->with('foo')->once()->andThrow(new Devsave\Exceptions\UserNotFoundException);
+    $this->usersRepoMock->shouldReceive('findById')->with('foo')->once()->andThrow(new Devsave\Exceptions\UserNotFoundException);
 
     $response = $this->call('GET', $this->apiPrefix . '/users/foo');
 
     $this->assertResponseStatus(404);
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 404, "data": {"message": "User with id foo not found."}}',
+      '{
+        "code": 404, 
+        "data": {
+          "message": "User with id foo not found."
+        }
+      }',
       $response->getContent()
     );
   }
 
   public function test_saving_user_without_data () {
-    $mock = $this->setupMock();
-
-    $mock->shouldReceive('create')->never();
+    $this->usersRepoMock->shouldReceive('create')->never();
     
     $response = $this->call('POST', $this->apiPrefix . '/users');
 
     $this->assertResponseStatus(400);
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 400, "data": {"message": "Not enough data. Email and password are required."}}',
+      '{
+        "code": 400, 
+        "data": {
+          "message": "Not enough data. Email and password are required."
+        }
+      }',
       $response->getContent()
     );
   }
 
   public function test_updating_user_with_wrong_data () {
-    $mock = $this->setupMock();
-    
-    $mock->shouldReceive('update')->with([
+    $this->usersRepoMock->shouldReceive('update')->with([
       'id'       => 100,
       'email'    => 'updatedUser@example.com',
       'password' => '12345'
@@ -142,33 +188,31 @@ class UsersResourceControllerTest extends TestCase {
     $this->assertResponseStatus(404);
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 404, "data": {"message": "User with id 100 not found."}}',
+      '{
+        "code": 404, 
+        "data": {
+          "message": "User with id 100 not found."
+        }
+      }',
       $response->getContent()
     );
   }
 
   public function test_deleting_user_with_wrong_id () {
-    $mock = $this->setupMock();
-
-    $mock->shouldReceive('delete')->with('foo')->once()->andThrow(new Devsave\Exceptions\UserNotFoundException);
+    $this->usersRepoMock->shouldReceive('delete')->with('foo')->once()->andThrow(new Devsave\Exceptions\UserNotFoundException);
 
     $response = $this->call('DELETE', $this->apiPrefix . '/users/foo');
 
     $this->assertResponseStatus(404);
 
     $this->assertJsonStringEqualsJsonString(
-      '{"code": 404, "data": {"message": "User with id foo not found."}}',
+      '{
+        "code": 404, 
+        "data": {
+          "message": "User with id foo not found."
+        }
+      }',
       $response->getContent()
     ); 
-  }
-
-  public function setupMock () {
-    Auth::shouldReceive('guest')->andReturn(false);
-
-    $userRepositoryMock = m::mock('Devsave\Users\EloquentUsersRepository');
-
-    App::instance('Devsave\Users\UsersInterface', $userRepositoryMock);
-
-    return $userRepositoryMock;
   }
 }

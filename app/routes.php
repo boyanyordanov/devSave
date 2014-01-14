@@ -29,7 +29,7 @@ Route::get('{any?}', 'HomeController@getIndex');
 |
 */
 
-Route::group(['prefix' => 'api/v1', 'before' => 'auth.api'], function () {
+Route::group(['prefix' => 'api/v1', 'before' => ''], function () {
 
   /*
   |--------------------------------------------------------------------------
@@ -43,8 +43,11 @@ Route::group(['prefix' => 'api/v1', 'before' => 'auth.api'], function () {
   |
   */
 
-  Route::resource('users', 'Devsave\Api\UsersController');
-
+  Route::resource(
+    'users', 
+    'Devsave\Api\UsersController', 
+    ['only' => ['index', 'show', 'store', 'update', 'destroy']]
+  );
  
   /*
   |--------------------------------------------------------------------------
@@ -60,23 +63,24 @@ Route::group(['prefix' => 'api/v1', 'before' => 'auth.api'], function () {
   | - Adding or removing a tag from the bookmark should happen again with
   |   an update using the PUT request 
   |
-  | /api/v1/users/{userId}/bookmarks                      - GET, POSTr    
-  | /api/v1/users/{userId}/bookmarks/{bookmarkId}         - GET, POST, PUT, DELETE
+  | /api/v1/users/{userId}/bookmarks                      - GET, POST    
+  | /api/v1/users/{userId}/bookmarks/{bookmarkId}         - GET, PUT, DELETE
   |
-  | URL parameters:
-  | - search - search term to filter the bookmark 
+  | URL parameters: 
   | - folder - filters the bookmarks based on folder
   | - tags   - filters the bookmarks based on tags
   |
   | Examples:
-  | /api/v1/users/{userId}/bookmarks?filter="development"
-  | /api/v1/users/{userId}/bookmarks?folder=2
-  | /api/v1/users/{userId}/bookmarks?tags=1,2,3
-  | /api/v1/users/{userId}/bookmarks?filter="kittens"&tags=tag1,tag2,tag3
-  | /api/v1/users/{userId}/bookmarks?filter="php"&folder=slug
+  | /api/v1/users/{userId}/bookmarks?folder=my-folder
+  | /api/v1/users/{userId}/bookmarks?tag=my-tag
   |
   */
 
+  Route::resource(
+    'users/{userId}/bookmarks', 
+    'Devsave\Api\BookmarksController', 
+    ['only' => ['index', 'show', 'store', 'update', 'destroy']]
+  );
 
   /*
   |--------------------------------------------------------------------------
@@ -86,7 +90,7 @@ Route::group(['prefix' => 'api/v1', 'before' => 'auth.api'], function () {
   | The folder resource. Responsible for retrieving, creating, updating and deleting  
   | folders for a user.
   |
-  | /api/v1/users/{userId}/folders            - GET, POST
+  | /api/v1/users/{userId}/folders        - GET, POST
   | /api/v1/users/{userId}/folders/{slug} - POST, PUT, DELETE 
   | /api/v1/users/{userId}/folders/{slug} - GET - returns information for the folder 
   |                                               and all assoaciated bookmarks 

@@ -130,6 +130,13 @@ class UsersController extends \BaseController {
 	{
 		try {
 			$this->users->delete($id);
+
+			return Response::make([
+				'code' => 200,
+				'data' => [
+					'message' => 'User deleted successfully.'
+				]
+			], 200);
 		} catch (UserNotFoundException $e) {
 			return Response::make([
 				'code' => 404,
