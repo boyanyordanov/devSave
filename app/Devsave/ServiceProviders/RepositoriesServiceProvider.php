@@ -11,5 +11,7 @@ class RepositoriesServiceProvider extends ServiceProvider {
     $app->bind('Devsave\Folders\FoldersInterface', 'Devsave\Folders\EloquentFoldersRepository');
 
     $app->bind('Devsave\Bookmarks\BookmarkInterface', 'Devsave\Bookmarks\EloquentBookmarkRepository');
+
+    $app->bind('Devsave\Users\UsersInterface', 'Devsave\Users\EloquentUsersRepository');
   }
 }
